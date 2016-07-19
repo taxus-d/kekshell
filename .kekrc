@@ -1,0 +1,9 @@
+#!/bin/sh
+
+export PS1="`whoami`@kekmachine $ "
+export LC_MESSAGES=C
+export MODULES_DIR="$KROOT"/modules
+export TMPDIR=/tmp/kekshell
+export HISTFILE="$KROOT"/.kekstory
+export HISTSIZE=5000
+export VERBOSE=1
