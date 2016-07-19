@@ -1,5 +1,12 @@
 #!/bin/sh
 
+loaded() {
+    module="$1"
+    module="$(echo $module | sed 's%::%/%g').fn.sh"
+    grep -q "$module" "$LOADLOG"
+    echo $?
+}
+
 #  tool for checking if file is a kekshell module
 #+ or a directory
 __check_file() { 
@@ -22,7 +29,7 @@ __rec_load_list() {
             # `file' works badly :(
             __check_file "$fpath" || continue
             stfpath=$( echo `dirname $fpath`/`basename $fpath .fn.sh` )
-            __rec_load "$stfpath"
+            __rec_load_list "$stfpath"
         done
     else
         module="$module.fn.sh"
@@ -41,12 +48,22 @@ load() {
     module="$MODULES_DIR::$1"
 
     module=$(echo "$module" | sed 's%::%/%g')
-    __rec_load "$module" | while read mod; do
+    # trouble here:
+    # `while read line` runs in subshell in plain sh
+    # so code below looks crutchy
+    # certainly kekshell will have better `while` then Born SH :p
+    modlist=$(__rec_load_list "$module")
+    modlistlen=$(echo "$modlist" | wc -l )
+    i=0
+    while [ $i -lt $modlistlen ]; do
+        i=$(($i+1))
+        mod=$(echo "$modlist" | head -n 1 )
+        modlist=$(echo "$modlist" | tail -n +2 )
         # preventing multiple loading of single file
-        if ! grep -q "$mod" "$TMPDIR"/.loadlog ;then
-            echo "$mod" >> "$TMPDIR"/.loadlog
-            [ "$DEBUG" = true ] && echo "+ $mod"
+        if ! grep -q "$mod" "$LOADLOG" ;then
+            echo "$mod" >> "$LOADLOG"
             . "$mod"
+            [ "$DEBUG" = true ] && echo "+ $mod"
         else
             [ "$DEBUG" = true ] && echo "$mod have been loaded already"
         fi

@@ -24,7 +24,7 @@ echo -n > "$TMPDIR"/.loadlog
 [ -f "$HISTFILE" ] || touch "$HISTFILE"
 load verbose::greeting
 greet
-incinerate greet
+# incinerate greet
 
 while true; do
     prompt 
