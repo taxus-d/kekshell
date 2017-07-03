@@ -10,6 +10,7 @@
 #   * cmd path like /bin/ls -> 'c' <<< a tricky part here, as SH says something like `tracked alias'
 #   * alias                 -> 'a'
 #   * something unknown     -> 'u'
+export LANG=C
 cmd="$1"
 pathstr=" $( echo "$PATH" | sed 's/:/\\|/g')"
 
